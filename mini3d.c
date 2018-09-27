@@ -265,7 +265,7 @@ void transform_init(transform_t *ts, int width, int height) {
 	float aspect = (float)width / ((float)height);
 	matrix_set_identity(&ts->world);
 	matrix_set_identity(&ts->view);
-	matrix_set_perspective(&ts->projection, 3.1415926f * 0.5f, aspect, 1.0f, 500.0f);
+	matrix_set_perspective(&ts->projection, 3.1415926f * 0.01f, aspect, 1.0f, 500.0f);
 	ts->w = (float)width;
 	ts->h = (float)height;
 	transform_update(ts);
@@ -273,20 +273,13 @@ void transform_init(transform_t *ts, int width, int height) {
 
 // 将矢量 x 进行 project 
 void transform_apply(const transform_t *ts, vector_t *y, const vector_t *x, vector_t *_3d_transform) {
-	//matrix_apply(y, x, &ts->transform);
 	vector_t t1;
 	vector_t t2;
 	vector_t t3;
 	matrix_apply(&t1, x, &ts->world);
-	//vector_add(&t2, &t1, _3d_transform);
 	matrix_apply(&t2, &t1, &ts->view);
-	//vector_add(&t3, &t2, &_3d_transform);
-	//t2.x += _3d_transform->x;
-	//t2.y += _3d_transform->y;
-	//t2.z += _3d_transform->z;
 	vector_add(&t3, &t2, _3d_transform);
 	matrix_apply(y, &t3, &ts->projection);
-
 }
 
 // 计算平面法向量
@@ -700,6 +693,8 @@ void device_draw_scanline(device_t *device, scanline_t *scanline, vector_t *norm
 					float dot = vector_dotproduct(&device->light.direction, normal);
 					if (dot < 0)
 						dot = -dot;
+					if (dot == 0)
+						dot = 0;
 					int B = cc & 0xff;
 					int G = (cc & 0xff00) >> 8;
 					int R = (cc & 0xff0000) >> 16;
@@ -1013,7 +1008,7 @@ int main(void)
 	while (screen_exit == 0 && screen_keys[VK_ESCAPE] == 0) {
 		screen_dispatch();
 		device_clear(&device, 1);
-		camera_at_zero(&device, 0, 0, -3.5);
+		camera_at_zero(&device, 0, 0, -400);
 
 		if (screen_keys[VK_UP]) pos_y += 0.01f;
 		if (screen_keys[VK_DOWN]) pos_y -= 0.01f;
